@@ -7,11 +7,15 @@ COMPRESSION = ['NO','RLE','ZIPS','ZIP','PIZ','PXR24','B44','B44A']
 LINEORDER = ['INCRESING Y','DECREASING Y','RANDOM Y']
 PIXELTYPE = ['UINT','HALF','FLOAT']
 
+__all__ = ['ExrHeader']
+
 class ExrHeader(object):
 	__slots__ = '_header'
 	
-	def __init__(self):
+	def __init__(self, fd = None):
 		self._header = dict()
+		if fd is not None:
+			self.read(fd)
 	
 	def read_int32(self, read):
 		l = read(4)
@@ -67,7 +71,7 @@ class ExrHeader(object):
 		
 		return result
 	
-	def read(self,fd):
+	def read(self, fd):
 		self._header = dict()
 		read = fd.read
 		id = self.read_int32(read)
