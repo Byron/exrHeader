@@ -13,7 +13,7 @@ class ExrHeader(object):
 	__slots__ = '_header'
 	
 	def __init__(self, fd = None):
-		self._header = dict()
+		self._header = list()
 		if fd is not None:
 			self.read(fd)
 	
@@ -52,17 +52,17 @@ class ExrHeader(object):
 		elif name == 'compression':
 			result = COMPRESSION[unpack('B', data)[0]]
 		elif name == 'chlist':
-			chld = dict()
+			chld = list()
 			cid = 0
 			while cid < (size-1):
-				idx = ''
+				cname = ''
 				while data[cid] != '\0':
-					idx += data[cid]
+					cname += data[cid]
 					cid = cid + 1
 				cid = cid + 1
 				ch = unpack('iiii', data[cid:cid+16])
 				cid = cid + 16
-				chld[idx] = {'pixeltype':PIXELTYPE[ch[0]], 'sampling x':ch[2], 'sampling y':ch[3]}
+				chld.append((cname, {'pixeltype':PIXELTYPE[ch[0]], 'sampling x':ch[2], 'sampling y':ch[3]}))
 			result = chld
 		elif name == 'lineOrder':
 			result = LINEORDER[unpack('B', data)[0]]
@@ -72,7 +72,7 @@ class ExrHeader(object):
 		return result
 	
 	def read(self, fd):
-		self._header = dict()
+		self._header = list()
 		read = fd.read
 		id = self.read_int32(read)
 		ver = self.read_int32(read)
@@ -88,21 +88,22 @@ class ExrHeader(object):
 			
 			data = self.conv_data(name, data, size)
 			
-			self._header[cn] = {name:data}
+			self._header.append((cn, name, data))
 			cn = self.read_string(read)
 		
 		return True
 	
 	def get(self):
 		return self._header
-	
-	def __getattr__(self, name):
-		try:
-			return self._header[name]
-		except KeyError:
-			return object.__getattr__(self, name)	# trigger attribute error
+		
+	def __getattr__(self, attr):
+		for name, dtype, data in self._header:
+			if name == attr:
+				return (dtype, data)
+		#END serach for matching attribute name
+		return super(ExrHeader, self).__getattr__(attr)
 	
 	def attributes(self):
-		return self._header.keys()
+		return [t[0] for t in self._header]
 		
 
