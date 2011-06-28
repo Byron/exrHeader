@@ -26,24 +26,27 @@ PIXELTYPE_HALF = 1
 PIXELTYPE_FLOAT = 2
 #} END constants
 
-__all__ = [	'ExrHeader', 'ExrChannel' ] 
+__all__ = [	'ExrHeader', 'ExrChannel', 'ExrChannelList' ] 
 
 class ExrChannel(object):
 	"""A simple stucture holding channel specific information"""
 	__slots__ = (
 				'type', 
-				'xSampling', 
-				'ySampling', 
-				'pLinear'
+				'x_sampling', 
+				'y_sampling', 
+				'p_linear'
 				)
-	def __init__(self, type = PIXELTYPE_HALF, xSampling=1, ySampling=1, pLinear=False):
+	def __init__(self, type = PIXELTYPE_HALF, x_sampling=1, y_sampling=1, p_linear=False):
 		self.type = type
-		self.xSampling = xSampling
-		self.ySampling = ySampling
-		self.pLinear = pLinear
+		self.x_sampling = x_sampling
+		self.y_sampling = y_sampling
+		self.p_linear = p_linear
+		
+	def __repr__(self):
+		return "Channel(%s, %i, %i, %i)" % (PIXELTYPE[self.type], self.x_sampling, self.y_sampling, self.p_linear)
 		
 	def __eq__ (self, rhs):
-		return self.type == rhs.type and self.xSampling == rhs.xSampling and self.ySampling == rhs.ySampling
+		return self.type == rhs.type and self.x_sampling == rhs.x_sampling and self.y_sampling == rhs.y_sampling
 		
 	def __ne__(self, rhs):
 		return not self.__eq__(rhs)
@@ -55,7 +58,17 @@ class ExrChannelList(list):
 	
 	#{ Interface 
 	
+	def iter_channels_in_layer(self, layer):
+		""":return: iterator over all layers which match the given layer name"""
+		return self.iter_channels_with_prefix(layer+".")
 	
+	def iter_channels_with_prefix(self, prefix):
+		""":return: iterator over all consecutive channels which match the given prefix"""
+		for name, channel in self:
+			if name.startswith(prefix):
+				yield channel
+			#END if we have a match
+		#END for each name in channel
 	
 	#} END interface
 	

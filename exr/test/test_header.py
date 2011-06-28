@@ -26,10 +26,7 @@ class TestHeader(TestBase):
 			
 			assert len(channels) > 15
 			
-			# test ExrChannels
-			if 'vray' in name:
-				pass
-			else:
-				pass
-			#END exr name specific tests
+			for channel in channels.iter_channels_with_prefix("shadow"):
+				assert isinstance(channel, ExrChannel)
+			#END for each channel
 		#END for each fixture name
