@@ -51,6 +51,7 @@ class ExrChannel(object):
 	def __ne__(self, rhs):
 		return not self.__eq__(rhs)
 	
+	
 class ExrChannelList(list):
 	"""A list of channels - it stores them in order and as efficiently as possible.
 	Additional utility methods are provided, similar to the respective c++ implementation
@@ -89,11 +90,23 @@ class ExrChannelList(list):
 		out = set()
 		for name, channel in self:
 			i = name.rfind('.')
-			if i > -1 and i+1 < len(name):
+			if i > -1 and i != 0 and i+1 < len(name):
 				out.add(name[:i])
 			#END dot is within string
 		#END for each name, channel pair
 		return sorted(out)
+		
+	def default_channels(self):
+		""":return: a list of name, channel pairs which are not in any layer. This includes
+		all channels whose names where previously exluded when querying the layer()"""
+		out = list()
+		for name, channel in self:
+			i = name.rfind('.')
+			if i < 0 or i == 0 or i+1 == len(name):
+				out.append((name, channel))
+			#END have a non-layer
+		#END for each name-channel pair
+		return out
 	#} END interface
 	
 
