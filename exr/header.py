@@ -53,23 +53,47 @@ class ExrChannel(object):
 	
 class ExrChannelList(list):
 	"""A list of channels - it stores them in order and as efficiently as possible.
-	Additional utility methods are provided, similar to the respective c++ implementation"""
+	Additional utility methods are provided, similar to the respective c++ implementation
+	
+	The exr channel list assumes sorted order"""
 	__slots__ = tuple()
 	
 	#{ Interface 
 	
-	def iter_channels_in_layer(self, layer):
-		""":return: iterator over all layers which match the given layer name"""
-		return self.iter_channels_with_prefix(layer+".")
+	def channels_in_layer(self, layer):
+		""":return: list with all name,channel pairs whose layer matches the given layer name"""
+		return self.channels_with_prefix(layer+".")
 	
-	def iter_channels_with_prefix(self, prefix):
-		""":return: iterator over all consecutive channels which match the given prefix"""
-		for name, channel in self:
+	def channels_with_prefix(self, prefix):
+		""":return: slice of ourselves with all consecutive name,channel pairs which match the given prefix"""
+		# we may assume a sorted order
+		s = None
+		e = 0
+		for i, (name, channel) in enumerate(self):
 			if name.startswith(prefix):
-				yield channel
+				if s is None:
+					s = i
+					e = s + 1
+				else:
+					e += 1
+				#END handle match
 			#END if we have a match
 		#END for each name in channel
+		if s is None:
+			return list()
+		return self[s:e]
 	
+	def layers(self):
+		""":return: a list of all layer channel names, without the terminating 
+		'.' character"""
+		out = set()
+		for name, channel in self:
+			i = name.rfind('.')
+			if i > -1 and i+1 < len(name):
+				out.add(name[:i])
+			#END dot is within string
+		#END for each name, channel pair
+		return sorted(out)
 	#} END interface
 	
 

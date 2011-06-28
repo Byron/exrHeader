@@ -26,7 +26,17 @@ class TestHeader(TestBase):
 			
 			assert len(channels) > 15
 			
-			for channel in channels.iter_channels_with_prefix("shadow"):
-				assert isinstance(channel, ExrChannel)
-			#END for each channel
+			for name, ch in channels.channels_with_prefix("shadow"):
+				assert isinstance(name, basestring)
+				assert isinstance(ch, ExrChannel)
+				#END for each channel
+			
+			layers = channels.layers()
+			assert layers
+			assert len(layers) < len(channels)
+			for layer_name in layers:
+				chans = channels.channels_in_layer(layer_name)
+				assert chans
+				assert isinstance(chans, list)
+			#END for each layer name
 		#END for each fixture name
