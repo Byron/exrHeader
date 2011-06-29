@@ -99,7 +99,7 @@ class ChannelList(list):
 		return out
 	
 	def channels_with_suffix(self, suffix, case_insensitive=True):
-		""":return: HeaderList of all channels which match the given suffix
+		""":return: HeaderList of all channels which exactly match the given suffix
 		:param case_insensitive: If True, the suffix will be matched without honoring the case"""
 		if case_insensitive:
 			suffix = suffix.lower()
@@ -108,7 +108,10 @@ class ChannelList(list):
 		out = type(self)()
 		for c in self:
 			n = case_insensitive and c.name.lower() or c.name
-			if n.endswith(suffix):
+			i = n.rfind('.')
+			if i > -1:
+				n = n[i+1:]
+			if n == suffix:
 				out.append(c)
 			#END compare suffix
 		return out

@@ -45,9 +45,10 @@ class TestHeader(TestBase):
 				assert isinstance(chans, list)
 				assert not layer_name.startswith('.')
 				scount = 0
-				for suffix in ('rxaz'):
-					scount += len(chans.channels_with_suffix(suffix))
-				assert scount
+				for suffix_list in ('rxaz', ('mx',), ('nx',)):
+					for suffix in suffix_list:
+						scount += len(chans.channels_with_suffix(suffix))
+				assert scount, chans
 			#END for each layer name
 			
 			default_channels = channels.default_channels()
@@ -58,6 +59,9 @@ class TestHeader(TestBase):
 				assert isinstance(ch, Channel)
 				assert ch.name not in layers
 				assert '.' not in ch.name, ch.name
+				if 'r' in ch.name.lower():
+					assert len(default_channels.channels_with_suffix('r')) == 1
+				#END handle suffix test
 			#END for each name
 			
 			if 'vray2' in exr_base:
