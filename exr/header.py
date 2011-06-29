@@ -93,9 +93,25 @@ class ExrChannelList(list):
 				#END handle match
 			#END if we have a match
 		#END for each name in channel
-		if s is None:
-			return list()
-		return self[s:e]
+		out = type(self)()
+		if s is not None:
+			out.extend(self[s:e])
+		return out
+	
+	def channels_with_suffix(self, suffix, case_insensitive=True):
+		""":return: ExrHeaderList of all channels which match the given suffix
+		:param case_insensitive: If True, the suffix will be matched without honoring the case"""
+		if case_insensitive:
+			suffix = suffix.lower()
+		#END make lower case
+		
+		out = type(self)()
+		for c in self:
+			n = case_insensitive and c.name.lower() or c.name
+			if n.endswith(suffix):
+				out.append(c)
+			#END compare suffix
+		return out
 	
 	def layers(self):
 		""":return: a list of all layer names, without the terminating 
@@ -113,7 +129,7 @@ class ExrChannelList(list):
 	def default_channels(self):
 		""":return: a list of Channels which are not in any layer. This includes
 		all channels whose names where previously exluded when querying the layer()"""
-		out = list()
+		out = type(self)()
 		for c in self:
 			n = c.name
 			i = n.rfind('.')

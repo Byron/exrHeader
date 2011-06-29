@@ -29,7 +29,9 @@ class TestHeader(TestBase):
 			
 			assert len(channels) > 15
 			
-			for ch in channels.channels_with_prefix("shadow"):
+			prefix_channels = channels.channels_with_prefix("shadow")
+			assert isinstance(prefix_channels, ExrChannelList)
+			for ch in prefix_channels:
 				assert isinstance(ch, ExrChannel)
 				#END for each channel
 			
@@ -38,13 +40,19 @@ class TestHeader(TestBase):
 			assert len(layers) < len(channels)
 			for layer_name in layers:
 				chans = channels.channels_in_layer(layer_name)
+				assert isinstance(chans, ExrChannelList)
 				assert chans
 				assert isinstance(chans, list)
 				assert not layer_name.startswith('.')
+				scount = 0
+				for suffix in ('rxaz'):
+					scount += len(chans.channels_with_suffix(suffix))
+				assert scount
 			#END for each layer name
 			
 			default_channels = channels.default_channels()
 			assert default_channels
+			assert isinstance(default_channels, ExrChannelList)
 			
 			for ch in default_channels:
 				assert isinstance(ch, ExrChannel)
