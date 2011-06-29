@@ -29,28 +29,41 @@ PIXELTYPE_FLOAT = 2
 __all__ = [	'ExrHeader', 'ExrChannel', 'ExrChannelList' ] 
 
 class ExrChannel(object):
-	"""A simple stucture holding channel specific information"""
+	"""A simple stucture holding channel specific information
+	
+	:note: The quality comparison compares the name, use is_compatible to compare for 
+		binary compatibility"""
 	__slots__ = (
+				'name',
 				'type', 
 				'x_sampling', 
 				'y_sampling', 
 				'p_linear'
 				)
-	def __init__(self, type = PIXELTYPE_HALF, x_sampling=1, y_sampling=1, p_linear=False):
+	def __init__(self, name='', type=PIXELTYPE_HALF, x_sampling=1, y_sampling=1, p_linear=False):
+		self.name = name
 		self.type = type
 		self.x_sampling = x_sampling
 		self.y_sampling = y_sampling
 		self.p_linear = p_linear
 		
 	def __repr__(self):
-		return "Channel(%s, %i, %i, %i)" % (PIXELTYPE[self.type], self.x_sampling, self.y_sampling, self.p_linear)
-		
-	def __eq__ (self, rhs):
-		return self.type == rhs.type and self.x_sampling == rhs.x_sampling and self.y_sampling == rhs.y_sampling
+		return "Channel(%s, %s, %i, %i, %i)" % (self.name, PIXELTYPE[self.type], self.x_sampling, self.y_sampling, self.p_linear)
+	
+	def __eq__(self, rhs):
+		return self.name == rhs.name
 		
 	def __ne__(self, rhs):
 		return not self.__eq__(rhs)
+
+	#{ Interface
 	
+	def is_compatible(self, rhs):
+		""":return: True if we are binary compatible to rhs"""
+		return self.type == rhs.type and self.x_sampling == rhs.x_sampling and self.y_sampling == rhs.y_sampling
+	
+	#} END interface
+
 	
 class ExrChannelList(list):
 	"""A list of channels - it stores them in order and as efficiently as possible.
@@ -66,12 +79,12 @@ class ExrChannelList(list):
 		return self.channels_with_prefix(layer+".")
 	
 	def channels_with_prefix(self, prefix):
-		""":return: slice of ourselves with all consecutive name,channel pairs which match the given prefix"""
+		""":return: slice of ourselves with all consecutive Channels which match the given prefix"""
 		# we may assume a sorted order
 		s = None
 		e = 0
-		for i, (name, channel) in enumerate(self):
-			if name.startswith(prefix):
+		for i, c in enumerate(self):
+			if c.name.startswith(prefix):
 				if s is None:
 					s = i
 					e = s + 1
@@ -85,25 +98,27 @@ class ExrChannelList(list):
 		return self[s:e]
 	
 	def layers(self):
-		""":return: a list of all layer channel names, without the terminating 
+		""":return: a list of all layer names, without the terminating 
 		'.' character"""
 		out = set()
-		for name, channel in self:
-			i = name.rfind('.')
-			if i > -1 and i != 0 and i+1 < len(name):
-				out.add(name[:i])
+		for c in self:
+			n = c.name
+			i = n.rfind('.')
+			if i > -1 and i != 0 and i+1 < len(n):
+				out.add(n[:i])
 			#END dot is within string
 		#END for each name, channel pair
 		return sorted(out)
 		
 	def default_channels(self):
-		""":return: a list of name, channel pairs which are not in any layer. This includes
+		""":return: a list of Channels which are not in any layer. This includes
 		all channels whose names where previously exluded when querying the layer()"""
 		out = list()
-		for name, channel in self:
-			i = name.rfind('.')
-			if i < 0 or i == 0 or i+1 == len(name):
-				out.append((name, channel))
+		for c in self:
+			n = c.name
+			i = n.rfind('.')
+			if i < 0 or i == 0 or i+1 == len(n):
+				out.append(c)
 			#END have a non-layer
 		#END for each name-channel pair
 		return out
@@ -162,7 +177,7 @@ class ExrHeader(object):
 				cid = cid + 1
 				ch = unpack('iiii', data[cid:cid+16])
 				cid = cid + 16
-				chld.append((cname, ExrChannel(ch[0], ch[2], ch[3], ch[1])))
+				chld.append(ExrChannel(cname, ch[0], ch[2], ch[3], ch[1]))
 			#END while data is not depleted
 			result = chld
 		elif name == 'lineOrder':

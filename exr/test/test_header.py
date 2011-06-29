@@ -10,8 +10,11 @@ class TestHeader(TestBase):
 		assert c == ExrChannel()
 		assert not c != ExrChannel()
 		
-		c2 = ExrChannel(PIXELTYPE_FLOAT, 2, 3, True)
+		c2 = ExrChannel('newone', PIXELTYPE_FLOAT, 2, 3, True)
 		assert c != c2
+		
+		assert not c.is_compatible(c2)
+		assert c.is_compatible(c)
 		
 	def test_reading(self):
 		for exr_base in ("mayamr", "mayavray2"):
@@ -26,8 +29,7 @@ class TestHeader(TestBase):
 			
 			assert len(channels) > 15
 			
-			for name, ch in channels.channels_with_prefix("shadow"):
-				assert isinstance(name, basestring)
+			for ch in channels.channels_with_prefix("shadow"):
 				assert isinstance(ch, ExrChannel)
 				#END for each channel
 			
@@ -44,10 +46,9 @@ class TestHeader(TestBase):
 			default_channels = channels.default_channels()
 			assert default_channels
 			
-			for name, ch in default_channels:
-				assert isinstance(name, basestring)
+			for ch in default_channels:
 				assert isinstance(ch, ExrChannel)
-				assert name not in layers
+				assert ch.name not in layers
 			#END for each name
 			
 			if 'vray2' in exr_base:
