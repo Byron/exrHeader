@@ -26,9 +26,9 @@ PIXELTYPE_HALF = 1
 PIXELTYPE_FLOAT = 2
 #} END constants
 
-__all__ = [	'ExrHeader', 'ExrChannel', 'ExrChannelList' ] 
+__all__ = [	'Header', 'Channel', 'ChannelList' ] 
 
-class ExrChannel(object):
+class Channel(object):
 	"""A simple stucture holding channel specific information
 	
 	:note: The quality comparison compares the name, use is_compatible to compare for 
@@ -65,7 +65,7 @@ class ExrChannel(object):
 	#} END interface
 
 	
-class ExrChannelList(list):
+class ChannelList(list):
 	"""A list of channels - it stores them in order and as efficiently as possible.
 	Additional utility methods are provided, similar to the respective c++ implementation
 	
@@ -99,7 +99,7 @@ class ExrChannelList(list):
 		return out
 	
 	def channels_with_suffix(self, suffix, case_insensitive=True):
-		""":return: ExrHeaderList of all channels which match the given suffix
+		""":return: HeaderList of all channels which match the given suffix
 		:param case_insensitive: If True, the suffix will be matched without honoring the case"""
 		if case_insensitive:
 			suffix = suffix.lower()
@@ -141,7 +141,7 @@ class ExrChannelList(list):
 	#} END interface
 	
 
-class ExrHeader(object):
+class Header(object):
 	__slots__ = '_header'
 	def __init__(self, fd = None):
 		self._header = dict()
@@ -183,7 +183,7 @@ class ExrHeader(object):
 		elif name == 'compression':
 			result = unpack('B', data)[0]
 		elif name == 'chlist':
-			chld = ExrChannelList()
+			chld = ChannelList()
 			cid = 0
 			while cid < (size-1):
 				cname = ''
@@ -193,7 +193,7 @@ class ExrHeader(object):
 				cid = cid + 1
 				ch = unpack('iiii', data[cid:cid+16])
 				cid = cid + 16
-				chld.append(ExrChannel(cname, ch[0], ch[2], ch[3], ch[1]))
+				chld.append(Channel(cname, ch[0], ch[2], ch[3], ch[1]))
 			#END while data is not depleted
 			result = chld
 		elif name == 'lineOrder':
@@ -254,7 +254,7 @@ class ExrHeader(object):
 	#{ Predefined attributes
 	
 	def channels(self):
-		""":return: ExrChannelList"""
+		""":return: ChannelList"""
 		return self.attribute('channels')
 	
 	#}END access to predefined attributes
