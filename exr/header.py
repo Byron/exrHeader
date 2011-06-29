@@ -61,7 +61,21 @@ class Channel(object):
 	def is_compatible(self, rhs):
 		""":return: True if we are binary compatible to rhs"""
 		return self.type == rhs.type and self.x_sampling == rhs.x_sampling and self.y_sampling == rhs.y_sampling
-	
+
+	def layer(self):
+		""":return: the channel's layer name, which is the portion before the suffix.
+		It may be an empty string if there is no layer"""
+		i = self.name.rfind('.')
+		if i < 1:
+			return ''
+		return self.name[:i]
+		
+	def suffix(self):
+		""":return: our suffix id, which is essentially everything behind the last dot."""
+		i = self.name.rfind('.')
+		if i < 0:
+			return self.name
+		return self.name[i+1:]
 	#} END interface
 
 	

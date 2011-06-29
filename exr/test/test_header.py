@@ -40,6 +40,10 @@ class TestHeader(TestBase):
 			assert len(layers) < len(channels)
 			for layer_name in layers:
 				chans = channels.channels_in_layer(layer_name)
+				for ch in chans:
+					assert ch.layer() == layer_name
+					assert ch.suffix()
+				#END check layer methods
 				assert isinstance(chans, ChannelList)
 				assert chans
 				assert isinstance(chans, list)
@@ -59,6 +63,8 @@ class TestHeader(TestBase):
 				assert isinstance(ch, Channel)
 				assert ch.name not in layers
 				assert '.' not in ch.name, ch.name
+				assert not ch.layer()
+				assert ch.suffix()
 				if 'r' in ch.name.lower():
 					assert len(default_channels.channels_with_suffix('r')) == 1
 				#END handle suffix test
