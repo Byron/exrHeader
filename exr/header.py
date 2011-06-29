@@ -115,7 +115,7 @@ class ChannelList(list):
 	
 	def layers(self):
 		""":return: a list of all layer names, without the terminating 
-		'.' character"""
+		'.' character. Empty layer names are skipped."""
 		out = set()
 		for c in self:
 			n = c.name
@@ -128,12 +128,13 @@ class ChannelList(list):
 		
 	def default_channels(self):
 		""":return: a list of Channels which are not in any layer. This includes
-		all channels whose names where previously exluded when querying the layer()"""
+		all channels whose names where previously exluded when querying the layer(), but will not
+		include empty layers"""
 		out = type(self)()
 		for c in self:
 			n = c.name
 			i = n.rfind('.')
-			if i < 0 or i == 0 or i+1 == len(n):
+			if i < 0:
 				out.append(c)
 			#END have a non-layer
 		#END for each name-channel pair

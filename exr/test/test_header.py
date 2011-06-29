@@ -57,6 +57,7 @@ class TestHeader(TestBase):
 			for ch in default_channels:
 				assert isinstance(ch, Channel)
 				assert ch.name not in layers
+				assert '.' not in ch.name, ch.name
 			#END for each name
 			
 			if 'vray2' in exr_base:
