@@ -1,0 +1,8 @@
+[run]
+source = exr
+
+[report]
+omit = 
+	*/tests/*
+    */python?.?/*
+    */site-packages/nose/*

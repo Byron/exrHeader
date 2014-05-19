@@ -1,3 +1,10 @@
 *.pyc
-.DS_Store
+*~
 *.sublime-workspace
+
+.coverage
+cover/
+
+build/
+pages/
+doc/

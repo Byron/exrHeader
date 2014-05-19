@@ -1,11 +1,13 @@
+[![Build Status](https://travis-ci.org/Byron/exrHeader.svg?branch=master)](https://travis-ci.org/Byron/exrHeader)
+[![Coverage Status](https://coveralls.io/repos/Byron/exrHeader/badge.png)](https://coveralls.io/r/Byron/exrHeader)
+
 This is OpenEXR header loader.
 
-==========================================================================
-Usage Examples
-==========================================================================
+## Usage Examples
 
-Collecting attributes
----------------------
+### Collecting attributes
+
+```python
 from exrHeader import *
 
 fd = open('sample.exr','rb')
@@ -13,10 +15,11 @@ exr = ExrHeader()
 if exr.read(fd):
     print exr.attributes()
 fd.close()
+```
 
+### Get channel list
 
-Get channel list
-----------------
+```python
 from exrHeader import *
 
 fd = open('sample.exr','rb')
@@ -26,10 +29,11 @@ if exr.read(fd):
     for ch in chlist:
         print "%s:%s" % (ch, chlist[ch])
 fd.close()
+```
 
+### scanline or tiles
 
-scanline or tiles
------------------
+```python
 from exrHeader import *
 
 fd = open('sample.exr', 'rb')
@@ -42,5 +46,6 @@ if exr.read(fd):
 else:
     print( "unknown file or error" )
 fd.close()
+```
 
 
